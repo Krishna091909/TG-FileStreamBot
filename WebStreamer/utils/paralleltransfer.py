@@ -55,7 +55,6 @@ class Connection:
 class DCConnectionManager:
     log: logging.Logger
     client: TelegramClient
-    loop: asyncio.AbstractEventLoop
 
     dc_id: int
     dc: Optional[DcOption]
@@ -71,7 +70,6 @@ class DCConnectionManager:
         self.auth_key = None
         self.connections = []
         self._list_lock = asyncio.Lock()
-        self.loop = client.loop
         self.dc = None
 
     async def _new_connection(self) -> Connection:
@@ -109,9 +107,8 @@ class DCConnectionManager:
 
     async def _next_connection(self) -> Connection:
         best_conn: Optional[Connection] = None
-        for conn in self.connections:
-            if not best_conn or conn.users < best_conn.users:
-                best_conn = conn
+        if self.connections:
+            best_conn = min(self.connections, key=lambda conn: conn.users)
         if (not best_conn or best_conn.users > 0) and len(self.connections) < Var.CONNECTION_LIMIT:
             best_conn = await self._new_connection()
         return best_conn
@@ -132,7 +129,6 @@ class DCConnectionManager:
 class ParallelTransferrer:
     log: logging.Logger = logging.getLogger(__name__)
     client: TelegramClient
-    loop: asyncio.AbstractEventLoop
 
     dc_managers: Dict[int, DCConnectionManager]
 
@@ -140,7 +136,6 @@ class ParallelTransferrer:
 
     def __init__(self, client: TelegramClient) -> None:
         self.client = client
-        self.loop = self.client.loop
         self._counter = 0
         self.dc_managers = {
             1: DCConnectionManager(client, 1),
@@ -155,7 +150,7 @@ class ParallelTransferrer:
 
     async def get_file_properties(self, message_id: int) -> FileInfo:
         """
-        Returns the properties of a media of a specific message in a FIleId class.
+        Returns the properties of a media of a specific message in a FileInfo class.
         if the properties are cached, then it'll return the cached results.
         or it'll generate the properties from the Message ID and cache them.
         """
@@ -167,10 +162,10 @@ class ParallelTransferrer:
     async def generate_file_properties(self, message_id: int) -> FileInfo:
         """
         Generates the properties of a media file on a specific message.
-        returns ths properties in a FIleId class.
+        returns ths properties in a FileInfo class.
         """
         file_id = await get_file_ids(self.client, Var.BIN_CHANNEL, message_id)
-        logging.debug("Generated file ID and Unique ID for message with ID %s", message_id)
+        logging.debug("Generated file ID for message with ID %s", message_id)
         self.cached_file_ids[message_id] = file_id
         logging.debug("Cached media message with ID %s", message_id)
 

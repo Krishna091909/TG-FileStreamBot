@@ -193,4 +193,3 @@ You can contact either via my [Telegram Group](https://xn--r1a.click/AWeirdStrin
 - [eyaadh](https://github.com/eyaadh) for his awesome [Megatron Bot](https://github.com/eyaadh/megadlbot_oss).
 - [BlackStone](https://github.com/eyMarv) for adding multi-client support.
 - [Lonami](https://github.com/Lonami) for his [Telethon Library](https://github.com/LonamiWebs/Telethon)
-- [TheHamkerCat](https://github.com/TheHamkerCat) for helping me with my common doubts.
