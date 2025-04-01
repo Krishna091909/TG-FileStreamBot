@@ -34,4 +34,4 @@ class Var(object):
     SLEEP_THRESHOLD = int(environ.get("SLEEP_THRESHOLD", "60"))  # 1 minte
     STREAM_MEDIA: bool = str(environ.get("STREAM_MEDIA", "0").lower()) in ("1", "true", "t", "yes", "y")
     TRUST_HEADERS: bool = str(environ.get("TRUST_HEADERS", "1").lower()) in ("1", "true", "t", "yes", "y")
-    URL = f"http{"s" if HAS_SSL else ""}://{FQDN}{"" if NO_PORT else ":" + str(PORT)}/"
+    URL = f"http{'s' if HAS_SSL else ''}://{FQDN}{'' if NO_PORT else ':' + str(PORT)}/"
