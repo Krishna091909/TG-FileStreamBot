@@ -26,7 +26,7 @@ async def media_receive_handler(event: NewMessage.Event):
         log_msg = await event.message.forward_to(Var.BIN_CHANNEL)
         file_info = get_file_info(log_msg)
 
-        # Generate file hash and links
+        # Generate file hash and stream link
         full_hash = pack_file(
             file_info.file_name,
             file_info.file_size,
@@ -35,26 +35,21 @@ async def media_receive_handler(event: NewMessage.Event):
         )
         file_hash = get_short_hash(full_hash)
         stream_link = f"{Var.URL}stream/{log_msg.id}?hash={file_hash}"
-        download_link = f"{Var.URL}dl/{log_msg.id}?hash={file_hash}"  # Direct download link
 
         # Construct the message output
         reply_text = f"""
 𝗬𝗼𝘂𝗿 𝗟𝗶𝗻𝗸 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱! ✅
 
-📂 **Fɪʟᴇ ɴᴀᴍᴇ** : `{file_info.file_name}`
+📂 Fɪʟᴇ ɴᴀᴍᴇ : `{file_info.file_name}`
 
-📦 **Fɪʟᴇ ꜱɪᴢᴇ** : `{file_info.file_size}`
-
-📥 **Dᴏᴡɴʟᴏᴀᴅ** : [Click Here]({download_link})
-
-▶️ **Sᴛʀᴇᴀᴍ** : [Watch Online]({stream_link})
+📥 Download : ({stream_link})
 """
-        # Send response with buttons
+        # Send response with the stream button
         await event.message.reply(
             message=reply_text,
             link_preview=False,
             buttons=[
-                [Button.url("📥 Download", url=download_link), Button.url("▶️ Stream", url=stream_link)]
+                [Button.url("📥 Download", url=stream_link)]
             ],
             parse_mode=html
         )
@@ -62,4 +57,3 @@ async def media_receive_handler(event: NewMessage.Event):
     except errors.FloodWaitError as e:
         logging.error(f"FloodWaitError: {e}")
         await event.message.reply("⚠️ Slow down! Telegram is limiting requests. Please wait.")
-
